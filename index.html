@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chengshilun Tetris</title>
+    <style>
+        body {
+            background-color: #e2be8b;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            margin: 50px auto;
+            background-color: #f7e4d0;
+            border: 2px solid #4a90e2;
+            overflow: hidden;
+        }
+
+        .hanzi {
+            position: absolute;
+            font-size: 72px;
+            font-weight: bold;
+            text-align: center;
+            color: #4a90e2;
+        }
+
+        .answers-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            width: 400px;
+            margin: 10px auto;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .answer-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .answers-container button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+
+        }
+
+        .answers-container button:hover {
+            background-color: #45a049;
+        }
+
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        #game-over button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container" id="game-container">
+        <div id="game-over">
+            <p>Game Over!</p>
+            <button onclick="restartGame()">Restart</button>
+        </div>
+    </div>
+    <div class="answers-container" id="answers-container"></div>
+
+    <script>
+        const data = [
+        {
+          "Hanzis": "不",
+          "Piyins": "Bù",
+          "Meanings": "not, don't, negative prefix",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "是",
+          "Piyins": "Shì",
+          "Meanings": "to be, yes, this, correct",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "故",
+          "Piyins": "Gù",
+          "Meanings": "reason, cause, then",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "無",
+          "Piyins": "Wú",
+          "Meanings": "not have, without, void",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "有",
+          "Piyins": "Yǒu",
+          "Meanings": "have, possess, exist, bhava",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "生",
+          "Piyins": "Shēng",
+          "Meanings": "life, birth, rebirth, samsara",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "又",
+          "Piyins": "Yòu",
+          "Meanings": "again, also, furthermore",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "如",
+          "Piyins": "Rú",
+          "Meanings": "like, as, according to",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "說",
+          "Piyins": "Shuō",
+          "Meanings": "speak, explain, dharma teaching",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "中",
+          "Piyins": "Zhōng",
+          "Meanings": "in the midst of, within, in between, while",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "者",
+          "Piyins": "Zhě",
+          "Meanings": "one who, practitioner, subject of action",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "名",
+          "Piyins": "Míng",
+          "Meanings": "name, conceptual designation, nominal existence",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "以",
+          "Piyins": "Yǐ",
+          "Meanings": "by means of, because, in order to",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "若",
+          "Piyins": "Ruò",
+          "Meanings": "if, like, as",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "心",
+          "Piyins": "Xīn",
+          "Meanings": "heart, mind, intention, citta",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "為",
+          "Piyins": "Wèi",
+          "Meanings": "because of, for, to, do",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "等",
+          "Piyins": "Děng",
+          "Meanings": "etc, and so forth",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "法",
+          "Piyins": "Fǎ",
+          "Meanings": "law, way, dharmas",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "曰",
+          "Piyins": "Yuē",
+          "Meanings": "say, speak, called",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "人",
+          "Piyins": "Rén",
+          "Meanings": "person, people, sentient being",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "得",
+          "Piyins": "Dé",
+          "Meanings": "obtain, get, realization",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "知",
+          "Piyins": "Zhī",
+          "Meanings": "know, discernment, prajna",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "亦",
+          "Piyins": "Yì",
+          "Meanings": "too, as well, likewise",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "能",
+          "Piyins": "Néng",
+          "Meanings": "can, capability, ability",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "何",
+          "Piyins": "Hé",
+          "Meanings": "what, why, how",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "所",
+          "Piyins": "Suǒ",
+          "Meanings": "place, location, that which",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "則",
+          "Piyins": "Zé",
+          "Meanings": "then, therefore, rule",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "見",
+          "Piyins": "Jiàn",
+          "Meanings": "see, view, drishti",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "此",
+          "Piyins": "Cǐ",
+          "Meanings": "this, then, here",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "一",
+          "Piyins": "Yī",
+          "Meanings": "one, single",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "相",
+          "Piyins": "Xiàng",
+          "Meanings": "mutual, characteristics, lakshana",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "諸",
+          "Piyins": "Zhū",
+          "Meanings": "all, various, many",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "色",
+          "Piyins": "Sè",
+          "Meanings": "rūpa, color, form",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "因",
+          "Piyins": "Yīn",
+          "Meanings": "cause, reason, hetu",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "業",
+          "Piyins": "Yè",
+          "Meanings": "business, work, karma",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "行",
+          "Piyins": "Xíng",
+          "Meanings": "saṃskāra, saṅkhāra, mental formations, practice, ir",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "應",
+          "Piyins": "Yìng",
+          "Meanings": "respond, deal with",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "緣",
+          "Piyins": "Yuán",
+          "Meanings": "cause, reason, dependence",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "答",
+          "Piyins": "Dá",
+          "Meanings": "reply, agree",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "言",
+          "Piyins": "Yán",
+          "Meanings": "words, say, speak",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "問",
+          "Piyins": "Wèn",
+          "Meanings": "ask, investigate",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "滅",
+          "Piyins": "Miè",
+          "Meanings": "extinguish, cease",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "受",
+          "Piyins": "Shòu",
+          "Meanings": "vedanā, sensation, receive",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "苦",
+          "Piyins": "Gǔ",
+          "Meanings": "bitter, suffering",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "善",
+          "Piyins": "Shàn",
+          "Meanings": "good, positive, benevolent",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "我",
+          "Piyins": "Wǒ",
+          "Meanings": "atman, self",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "非",
+          "Piyins": "Fēi",
+          "Meanings": "not, negative, incorrect",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "智",
+          "Piyins": "Zhì",
+          "Meanings": "discernment, wisdom",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "經",
+          "Piyins": "Jīng",
+          "Meanings": "sutras, scriptures",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "身",
+          "Piyins": "Shēn",
+          "Meanings": "body, life, kāya",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "樂",
+          "Piyins": "Lè",
+          "Meanings": "music, delight",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "於",
+          "Piyins": "Yú",
+          "Meanings": "in, to, by",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "佛",
+          "Piyins": "Fó",
+          "Meanings": "buddha, buddhism",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "定",
+          "Piyins": "Dìng",
+          "Meanings": "concentrate, samadhi, establish",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "欲",
+          "Piyins": "Yù",
+          "Meanings": "passion, desire, aspiration",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "識",
+          "Piyins": "Shí",
+          "Meanings": "vijñāna, viññāṇa, consciousness, cognition",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "三",
+          "Piyins": "Sān",
+          "Meanings": "3",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "皆",
+          "Piyins": "Jiē",
+          "Meanings": "all, in all cases",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "念",
+          "Piyins": "Niàn",
+          "Meanings": "think about, remember",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "事",
+          "Piyins": "Shì",
+          "Meanings": "event, happening, matter",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "斷",
+          "Piyins": "Duàn",
+          "Meanings": "cut, interrupt, discontinuous",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "惱",
+          "Piyins": "Nǎo",
+          "Meanings": "be affected by negative mental things",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "種",
+          "Piyins": "Zhǒng",
+          "Meanings": "species, types, seed",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "道",
+          "Piyins": "Dào",
+          "Meanings": "path, route, reason",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "而",
+          "Piyins": "Ér",
+          "Meanings": "as much as, and, and so",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "二",
+          "Piyins": "Èr",
+          "Meanings": "two, 2",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "四",
+          "Piyins": "Sì",
+          "Meanings": "4, four",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "眾",
+          "Piyins": "Zhòng",
+          "Meanings": "many, various, multitude",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "第",
+          "Piyins": "Dì",
+          "Meanings": "prefix indicating ordinal number as sixth and so on, but",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "貪",
+          "Piyins": "Tān",
+          "Meanings": "greed, craving",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "世",
+          "Piyins": "Shì",
+          "Meanings": "generation, world, era",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "一切",
+          "Piyins": "Yīqiē",
+          "Meanings": "all, each",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "切",
+          "Piyins": "Qiē",
+          "Meanings": "cut, slice",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "時",
+          "Piyins": "Shí",
+          "Meanings": "time, period, when",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "但",
+          "Piyins": "Dàn",
+          "Meanings": "however, but",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "常",
+          "Piyins": "Cháng",
+          "Meanings": "always, constant, frequent",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "五",
+          "Piyins": "Wǔ",
+          "Meanings": "5, five",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "可",
+          "Piyins": "Kè",
+          "Meanings": "can, ability",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "謂",
+          "Piyins": "Wèi",
+          "Meanings": "say, so to speak, name",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "實",
+          "Piyins": "Shí",
+          "Meanings": "efficiency, effectiveness, actual",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "想",
+          "Piyins": "Xiang",
+          "Meanings": "saṃjñā, sañña, reflection on, concept",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "根",
+          "Piyins": "Gēn",
+          "Meanings": "root, base",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "從",
+          "Piyins": "Cóng",
+          "Meanings": "by, hence, of",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "汝",
+          "Piyins": "Rǔ",
+          "Meanings": "you",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "離",
+          "Piyins": "Lí",
+          "Meanings": "leave, separate from, be far from",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "處",
+          "Piyins": "Chǔ",
+          "Meanings": "locus, reside, live",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "自",
+          "Piyins": "Zì",
+          "Meanings": "own, private, since",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "別",
+          "Piyins": "Bié",
+          "Meanings": "separate (from), to differentiate",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "淨",
+          "Piyins": "jìng",
+          "Meanings": "pure, clean, immaculate",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "分",
+          "Piyins": "fēn",
+          "Meanings": "to distinguish, sort out",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "在",
+          "Piyins": "zài",
+          "Meanings": "be in, about, consist of",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "品",
+          "Piyins": "pǐn",
+          "Meanings": "chapter, section",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "隨",
+          "Piyins": "Suí",
+          "Meanings": "follow, in accordance with, subsequently",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "然",
+          "Piyins": "rán",
+          "Meanings": "naturally, later, like this",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "煩",
+          "Piyins": "Fán",
+          "Meanings": "bother, annoy, trouble",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "作",
+          "Piyins": "zuò",
+          "Meanings": "make, work, compose",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "大",
+          "Piyins": "dài",
+          "Meanings": "big, vast",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "異",
+          "Piyins": "Yì",
+          "Meanings": "different, unusual, strange",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "眼",
+          "Piyins": "yǎn",
+          "Meanings": "a glance, hole, opening",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "修",
+          "Piyins": "xiū",
+          "Meanings": "study, cultivate",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "陰",
+          "Piyins": "yīn",
+          "Meanings": "skandhas, aggregates, principle",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "盡",
+          "Piyins": "jǐn",
+          "Meanings": "extinguish, exhaust",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "報",
+          "Piyins": "bào",
+          "Meanings": "[karmic] fruit, retribution",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "明",
+          "Piyins": "míng",
+          "Meanings": "discernment, bright",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "即",
+          "Piyins": "jí",
+          "Meanings": "that is, namely, thus",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "入",
+          "Piyins": "rù",
+          "Meanings": "enter, (sensory) inputs",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "慧",
+          "Piyins": "huì",
+          "Meanings": "discernment (prajna)",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "地",
+          "Piyins": "dì",
+          "Meanings": "earth (four elements, etc)",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "空",
+          "Piyins": "kōng",
+          "Meanings": "empty (of atman, etc)",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "惡",
+          "Piyins": "è",
+          "Meanings": "unhealthy, akuśala, something negative",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "過",
+          "Piyins": "guo",
+          "Meanings": "misunderstanding, past",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "解",
+          "Piyins": "jiě",
+          "Meanings": "understanding",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "當",
+          "Piyins": "dāng",
+          "Meanings": "should be, fit, proper",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "十",
+          "Piyins": "shí",
+          "Meanings": "10",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "罪",
+          "Piyins": "zuì",
+          "Meanings": "wrongful act",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "或",
+          "Piyins": "huò",
+          "Meanings": "either this... or that, perhaps",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "禪",
+          "Piyins": "chán",
+          "Meanings": "dhyana, absorption",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "成",
+          "Piyins": "chéng",
+          "Meanings": "realization, becoming",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "多",
+          "Piyins": "duō",
+          "Meanings": "many",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "利",
+          "Piyins": "lì",
+          "Meanings": "benefit, advantage",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "喜",
+          "Piyins": "xǐ",
+          "Meanings": "joy, pleasure, well-being",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "意",
+          "Piyins": "yì",
+          "Meanings": "mental attitude, intention",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "後",
+          "Piyins": "hòu",
+          "Meanings": "after, later, behind",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "餘",
+          "Piyins": "yú",
+          "Meanings": "the others, the remaining",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "云",
+          "Piyins": "yún",
+          "Meanings": "say, speak",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "觀",
+          "Piyins": "guān",
+          "Meanings": "vipashyana, discernment, observe, look",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "爾",
+          "Piyins": "ěr",
+          "Meanings": "thus, then, those",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "耶",
+          "Piyins": "yē",
+          "Meanings": "sentence ending, or interrogation, or transliteration",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "正",
+          "Piyins": "zhèng",
+          "Meanings": "correct, rectify",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "也",
+          "Piyins": "yě",
+          "Meanings": "sentence completion particle",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "漏",
+          "Piyins": "lòu",
+          "Meanings": "contaminated, āsrava",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "死",
+          "Piyins": "sǐ",
+          "Meanings": "death, die",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "脫",
+          "Piyins": "tuō",
+          "Meanings": "release, liberation through understanding",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "羅",
+          "Piyins": "luó",
+          "Meanings": "phonetic, e.g., arahat",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "取",
+          "Piyins": "qǔ",
+          "Meanings": "attachment, cling, grasp",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "現",
+          "Piyins": "xiàn",
+          "Meanings": "present, now, appear",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "起",
+          "Piyins": "qǐ",
+          "Meanings": "arise, elicit, cause",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "依",
+          "Piyins": "yī",
+          "Meanings": "rely on",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "諦",
+          "Piyins": "dì",
+          "Meanings": "truth (two truths)",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "雖",
+          "Piyins": "suī",
+          "Meanings": "even if, although",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "界",
+          "Piyins": "jiè",
+          "Meanings": "world, loka, spheres",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "覺",
+          "Piyins": "jué",
+          "Meanings": "awaken, wake up",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "觸",
+          "Piyins": "chù",
+          "Meanings": "contact, sparśa, phassa",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "戒",
+          "Piyins": "jiè",
+          "Meanings": "precepts, vinaya, monastic discipline",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "福",
+          "Piyins": "fú",
+          "Meanings": "happiness, (worldly) benefit",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "來",
+          "Piyins": "lái",
+          "Meanings": "come, came",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "語",
+          "Piyins": "yǔ",
+          "Meanings": "language, buddha's discourse",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "果",
+          "Piyins": "guǒ",
+          "Meanings": "fruit (both worldly and non-worldly), result",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "先",
+          "Piyins": "xiān",
+          "Meanings": "first, ancient, previous",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "聞",
+          "Piyins": "wén",
+          "Meanings": "hear",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "義",
+          "Piyins": "yì",
+          "Meanings": "justice, meaning",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "論",
+          "Piyins": "lùn",
+          "Meanings": "debate, treatise, theory",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "聲",
+          "Piyins": "shēng",
+          "Meanings": "sound, voice, hear",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "與",
+          "Piyins": "yǔ",
+          "Meanings": "and, with",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "未",
+          "Piyins": "wèi",
+          "Meanings": "yet, not yet",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "及",
+          "Piyins": "jí",
+          "Meanings": "and this, and that",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "邪",
+          "Piyins": "xié",
+          "Meanings": "false, heterodox, perverse",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "他",
+          "Piyins": "tā",
+          "Meanings": "other thing, other person, he",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "已",
+          "Piyins": "yǐ",
+          "Meanings": "already occurred, already",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "間",
+          "Piyins": "jiān",
+          "Meanings": "temporal interval, spatial interval",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "力",
+          "Piyins": "lì",
+          "Meanings": "force, power",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "次",
+          "Piyins": "cì",
+          "Meanings": "sequence, next",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "阿",
+          "Piyins": "ā",
+          "Meanings": "phonetic 'a'",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "思",
+          "Piyins": "sī",
+          "Meanings": "think, consider, thought",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "愛",
+          "Piyins": "ài",
+          "Meanings": "desire with attachment, desire",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "捨",
+          "Piyins": "shě",
+          "Meanings": "abandon, detachment",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "去",
+          "Piyins": "qù",
+          "Meanings": "already passed, past",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "壞",
+          "Piyins": "huài",
+          "Meanings": "undo, break",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "假",
+          "Piyins": "jiǎ",
+          "Meanings": "nominal, fictitious",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "殺",
+          "Piyins": "shā",
+          "Meanings": "kill",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "物",
+          "Piyins": "wù",
+          "Meanings": "things in general",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "性",
+          "Piyins": "xìng",
+          "Meanings": "svabhava, own nature",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "至",
+          "Piyins": "zhì",
+          "Meanings": "reach, arrive",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "住",
+          "Piyins": "zhù",
+          "Meanings": "inhabit, stability",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "初",
+          "Piyins": "chū",
+          "Meanings": "first, beginning",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "上",
+          "Piyins": "shàng",
+          "Meanings": "above, up",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "食",
+          "Piyins": "shí",
+          "Meanings": "eat, food, feed",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "天",
+          "Piyins": "tiān",
+          "Meanings": "deva world, heaven",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "復",
+          "Piyins": "fù",
+          "Meanings": "repeat, or yet, return",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "六",
+          "Piyins": "liù",
+          "Meanings": "6, six",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "信",
+          "Piyins": "xìn",
+          "Meanings": "trust, śraddhā",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "數",
+          "Piyins": "shǔ",
+          "Meanings": "number, several, frequently",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "聖",
+          "Piyins": "shèng",
+          "Meanings": "noble, arya pudgala, 4 noble truths",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "施",
+          "Piyins": "shī",
+          "Meanings": "offering, offer",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "出",
+          "Piyins": "chū",
+          "Meanings": "exit, recluse, rupture",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "洹",
+          "Piyins": "huán",
+          "Meanings": "phonetic way to compose the word like nirvana and srota-āpanna",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "堅",
+          "Piyins": "jiān",
+          "Meanings": "solidity",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "使",
+          "Piyins": "shǐ",
+          "Meanings": "klesha, cause, make",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "火",
+          "Piyins": "huǒ",
+          "Meanings": "heat, fire",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "集",
+          "Piyins": "jí",
+          "Meanings": "truth of origin, collection",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "求",
+          "Piyins": "qiú",
+          "Meanings": "seek, request",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "具",
+          "Piyins": "jù",
+          "Meanings": "complete, perfect",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "令",
+          "Piyins": "lìng",
+          "Meanings": "to command, to order, cause, condition",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "比",
+          "Piyins": "bǐ",
+          "Meanings": "compare, analogy",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "之",
+          "Piyins": "zhī",
+          "Meanings": "of, it, possessive",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "少",
+          "Piyins": "shǎo",
+          "Meanings": "few, little",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "合",
+          "Piyins": "gě",
+          "Meanings": "combine, join, union",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "難",
+          "Piyins": "nán",
+          "Meanings": "difficult, hard, obstacle",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "更",
+          "Piyins": "gèng",
+          "Meanings": "more, again, further",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "破",
+          "Piyins": "pò",
+          "Meanings": "to refute, break, destroy",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "勝",
+          "Piyins": "shèng",
+          "Meanings": "victory, excel, supreme",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "乃",
+          "Piyins": "nǎi",
+          "Meanings": "then, thus, therefore",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "香",
+          "Piyins": "xiāng",
+          "Meanings": "fragrant, incense",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "憶",
+          "Piyins": "yì",
+          "Meanings": "remember, memory",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "泥",
+          "Piyins": "ní",
+          "Meanings": "clay, defilement, impurity",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "瞋",
+          "Piyins": "chēn",
+          "Meanings": "anger, hate, dvesha",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "差",
+          "Piyins": "chā",
+          "Meanings": "distinction, difference",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "七",
+          "Piyins": "qī",
+          "Meanings": "7",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "八",
+          "Piyins": "bā",
+          "Meanings": "8",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "疑",
+          "Piyins": "yí",
+          "Meanings": "doubt, suspect, indecision",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "水",
+          "Piyins": "shuǐ",
+          "Meanings": "water, liquidity, fluidity",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "足",
+          "Piyins": "jù",
+          "Meanings": "sufficient, completeness, foot",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "今",
+          "Piyins": "jīn",
+          "Meanings": "present, now, today",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "習",
+          "Piyins": "xí",
+          "Meanings": "practice, study",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "其",
+          "Piyins": "qí",
+          "Meanings": "this, such that",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "深",
+          "Piyins": "shēn",
+          "Meanings": "deep",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "外",
+          "Piyins": "wài",
+          "Meanings": "outside, tirthika",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "口",
+          "Piyins": "kǒu",
+          "Meanings": "mouth",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "著",
+          "Piyins": "zhāo",
+          "Meanings": "attachment",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "漢",
+          "Piyins": "hàn",
+          "Meanings": "han ethnicity, used for transliteration",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "味",
+          "Piyins": "wèi",
+          "Meanings": "taste, also transliteration",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "陀",
+          "Piyins": "tuó",
+          "Meanings": "phonetic, also for transliteration, declivity",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "夫",
+          "Piyins": "fū",
+          "Meanings": "man, husband",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "結",
+          "Piyins": "jiē",
+          "Meanings": "produce, fruit",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "德",
+          "Piyins": "dé",
+          "Meanings": "virtue, morality",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "到",
+          "Piyins": "dào",
+          "Meanings": "to, reach, realize",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "風",
+          "Piyins": "fēng",
+          "Meanings": "wind, mobility",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "凡",
+          "Piyins": "fán",
+          "Meanings": "ordinary, ignorant",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "命",
+          "Piyins": "mìng",
+          "Meanings": "compassion, life",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "重",
+          "Piyins": "chóng",
+          "Meanings": "layer, heavy, repeated",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "獄",
+          "Piyins": "yù",
+          "Meanings": "prison, prisoner",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "癡",
+          "Piyins": "chī",
+          "Meanings": "foolish, avidya, ignorance",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "本",
+          "Piyins": "běn",
+          "Meanings": "root, origin, source",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "百",
+          "Piyins": "bǎi",
+          "Meanings": "hundred, many, manifold",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "增",
+          "Piyins": "zēng",
+          "Meanings": "increase, add, growth",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "丘",
+          "Piyins": "qiū",
+          "Meanings": "monk, bhikkhu",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "真",
+          "Piyins": "zhēn",
+          "Meanings": "true, real, truth",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "便",
+          "Piyins": "biàn",
+          "Meanings": "then, skillful means, expedient",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "瓶",
+          "Piyins": "píng",
+          "Meanings": "vase, vessel, container",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "量",
+          "Piyins": "liàng",
+          "Meanings": "measure, quantity, extent",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "了",
+          "Piyins": "liǎo",
+          "Meanings": "understand, finish, realization",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "清",
+          "Piyins": "qīng",
+          "Meanings": "clear, purity, clarity",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "虛",
+          "Piyins": "xū",
+          "Meanings": "empty, false, emptiness",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "必",
+          "Piyins": "bì",
+          "Meanings": "must, necessity, certainty",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "熱",
+          "Piyins": "rè",
+          "Meanings": "hot, heat, burning",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "慢",
+          "Piyins": "màn",
+          "Meanings": "arrogant, conceit, mana",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "昧",
+          "Piyins": "mèi",
+          "Meanings": "dark, ignorance, darkness",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "墮",
+          "Piyins": "duò",
+          "Meanings": "fall, sink, descent",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "子",
+          "Piyins": "zǐ",
+          "Meanings": "child, son, follower",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "門",
+          "Piyins": "mén",
+          "Meanings": "door, gate, entrance",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "和",
+          "Piyins": "hé",
+          "Meanings": "harmony, peace, concord",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "恚",
+          "Piyins": "huì",
+          "Meanings": "anger, hate, dvesha",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "失",
+          "Piyins": "shī",
+          "Meanings": "lose, miss, loss",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "違",
+          "Piyins": "wéi",
+          "Meanings": "violate, oppose, transgression",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "續",
+          "Piyins": "xù",
+          "Meanings": "continue, continuity, continuation",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "攝",
+          "Piyins": "shè",
+          "Meanings": "absorb, inclusion, absorption",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "遠",
+          "Piyins": "yuǎn",
+          "Meanings": "far, distant, remoteness",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "憂",
+          "Piyins": "yōu",
+          "Meanings": "worry, sorrow, anxiety",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "儀",
+          "Piyins": "yí",
+          "Meanings": "ceremony, manner, conduct",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "須",
+          "Piyins": "xū",
+          "Meanings": "must, need, requirement",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "俱",
+          "Piyins": "jù",
+          "Meanings": "together, all, complete",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "決",
+          "Piyins": "jué",
+          "Meanings": "decide, determine, resolution",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "塵",
+          "Piyins": "chén",
+          "Meanings": "dust, dirt, impurity",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "由",
+          "Piyins": "yóu",
+          "Meanings": "from, cause, reason",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "還",
+          "Piyins": "huán",
+          "Meanings": "return, repay, rebirth",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "學",
+          "Piyins": "xué",
+          "Meanings": "learn, study, learning",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "造",
+          "Piyins": "zào",
+          "Meanings": "make, create, formation",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "師",
+          "Piyins": "shī",
+          "Meanings": "teacher, master",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "用",
+          "Piyins": "yòng",
+          "Meanings": "use, employ, usage",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "益",
+          "Piyins": "yì",
+          "Meanings": "benefit, increase, advantage",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "持",
+          "Piyins": "chí",
+          "Meanings": "hold, maintain, upholding",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "日",
+          "Piyins": "rì",
+          "Meanings": "sun, day",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "除",
+          "Piyins": "chú",
+          "Meanings": "remove, except, elimination",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "功",
+          "Piyins": "gōng",
+          "Meanings": "merit, achievement, accomplishment",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "障",
+          "Piyins": "zhàng",
+          "Meanings": "obstacle, barrier, hindrance",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "止",
+          "Piyins": "zhǐ",
+          "Meanings": "stop, cease, cessation",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "九",
+          "Piyins": "jiǔ",
+          "Meanings": "nine, ninth, nine stages",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "通",
+          "Piyins": "tōng",
+          "Meanings": "pass through, understand",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "發",
+          "Piyins": "fā",
+          "Meanings": "send, arising, manifestation",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "動",
+          "Piyins": "dòng",
+          "Meanings": "move, change, movement",
+          "mistakes": 0
+        },
+        {
+          "Hanzis": "邊",
+          "Piyins": "biān",
+          "Meanings": "side, simultaneously, extreme",
+          "mistakes": 0
+        },
+        {
+        "Hanzis": "光",
+        "Piyins": "guāng",
+        "Meanings": "light, bright, only",
+        "mistakes": 0
+        },
+    {
+        "Hanzis": "下",
+        "Piyins": "xià",
+        "Meanings": "down, below, lower, later",
+        "mistakes": 0
+    }
+      ];
+
+        let currentHanziIndex = 0;
+        let currentHanzi = null;
+        let hanziElement = null;
+        let gameInterval = null;
+        const gameContainer = document.getElementById('game-container');
+        const answersContainer = document.getElementById('answers-container');
+
+        /**
+         * Starts the game
+         */
+        function startGame() {
+            currentHanziIndex = 0;
+            showNextHanzi();
+        }
+
+        /**
+         * Shows the next Hanzi
+         */
+        function showNextHanzi() {
+            if (currentHanziIndex >= data.length) {
+                currentHanziIndex = 0; // Restart the sequence
+            }
+
+            currentHanzi = data[currentHanziIndex];
+            hanziElement = document.createElement('div');
+            hanziElement.className = 'hanzi';
+            hanziElement.innerText = currentHanzi.Hanzis;
+            hanziElement.style.left = '50%';
+            hanziElement.style.transform = 'translateX(-50%)';
+            hanziElement.style.top = '0px';
+            gameContainer.appendChild(hanziElement);
+
+            generateAnswerOptions();
+
+            // Start falling animation
+            let position = 0;
+            gameInterval = setInterval(() => {
+                position += 2; // Speed of falling
+                hanziElement.style.top = position + 'px';
+
+                if (position >= gameContainer.offsetHeight - hanziElement.offsetHeight) {
+                    // Hanzi touched the bottom
+                    endGame();
+                }
+            }, 50);
+        }
+
+        /**
+         * Ends the game
+         */
+        function endGame() {
+            clearInterval(gameInterval);
+            hanziElement.remove();
+            hanziElement = null;
+            document.getElementById('game-over').style.display = 'block';
+        }
+
+        /**
+         * Restarts the game
+         */
+        function restartGame() {
+            document.getElementById('game-over').style.display = 'none';
+            currentHanziIndex = 0;
+            startGame();
+        }
+
+        /**
+         * Generates the answer options
+         */
+        function generateAnswerOptions() {
+            answersContainer.innerHTML = '';
+            const correctAnswer = currentHanzi.Meanings;
+            const allMeanings = data.map(item => item.Meanings).filter(m => m !== correctAnswer);
+            const answerOptions = shuffle([correctAnswer, ...allMeanings.slice(0, 3)]);
+
+            const leftColumn = document.createElement('div');
+            leftColumn.className = 'answer-column';
+
+            const rightColumn = document.createElement('div');
+            rightColumn.className = 'answer-column';
+
+            answerOptions.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.onclick = () => checkAnswer(option);
+
+                // Distribute buttons into two columns
+                if (index < 2) {
+                    leftColumn.appendChild(button);
+                } else {
+                    rightColumn.appendChild(button);
+                }
+            });
+
+            answersContainer.appendChild(leftColumn);
+            answersContainer.appendChild(rightColumn);
+        }
+
+        /**
+         * Checks if the selected answer is correct
+         */
+        function checkAnswer(selectedAnswer) {
+            if (selectedAnswer === currentHanzi.Meanings) {
+                clearInterval(gameInterval);
+                hanziElement.remove();
+                hanziElement = null;
+                currentHanziIndex++;
+                showNextHanzi();
+            }
+        }
+
+        /**
+         * Shuffles an array
+         */
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Start the game on page load
+        startGame();
+    </script>
+</body>
+</html>
