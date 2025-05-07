@@ -37,6 +37,16 @@
             color: #4a90e2;
         }
 
+        .pinyin-display {
+            position: absolute;
+            bottom: 10px; /* Fica logo acima da borda inferior */
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
         .answers-container {
             display: flex;
             justify-content: space-between;
@@ -102,6 +112,8 @@
             <p>Game Over!</p>
             <button onclick="restartGame()">Restart</button>
         </div>
+        <!-- Adicionada a div para exibir o Pinyin -->
+        <div class="pinyin-display" id="pinyin-display"></div>
     </div>
     <div class="answers-container" id="answers-container"></div>
 
@@ -1814,6 +1826,7 @@
         let attemptsRemaining = 3; // Tentativas restantes
         const gameContainer = document.getElementById('game-container');
         const answersContainer = document.getElementById('answers-container');
+        const pinyinDisplay = document.getElementById('pinyin-display'); // Referência à div do Pinyin
 
         /**
          * Starts the game
@@ -1841,12 +1854,15 @@
             hanziElement.style.top = '0px';
             gameContainer.appendChild(hanziElement);
 
+            // Atualiza o Pinyin para o Hanzi atual
+            pinyinDisplay.innerText = currentHanzi.Piyins;
+
             generateAnswerOptions();
 
             // Start falling animation
             let position = 0;
             gameInterval = setInterval(() => {
-                position += 4; // Speed of falling
+                position += 2; // Speed of falling
                 hanziElement.style.top = position + 'px';
 
                 if (position >= gameContainer.offsetHeight - hanziElement.offsetHeight) {
