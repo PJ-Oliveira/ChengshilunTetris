@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chengshilun Tetris</title>
     <style>
+      /* Ensure a responsive layout */
       body {
         background-color: #e2be8b;
         font-family: Arial, sans-serif;
@@ -17,6 +18,7 @@
         height: 100vh;
       }
 
+      /* Main container for the game */
       .game-container {
         position: relative;
         flex: 1;
@@ -28,58 +30,63 @@
         overflow: hidden;
       }
 
+      /* Style for the Hanzi character that falls */
       .hanzi {
         position: absolute;
-        font-size: 72px;
+        font-size: 4vw; /* Responsive font size */
         font-weight: bold;
         text-align: center;
         color: #4a90e2;
       }
 
+      /* Pinyin display at the bottom */
       .pinyin-display {
         position: absolute;
         bottom: 10px;
         width: 100%;
         text-align: center;
-        font-size: 24px;
+        font-size: 2vw; /* Responsive font size */
         font-weight: bold;
         color: #333;
       }
 
+      /* Container for the answer buttons */
       .answers-container {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns layout */
+        gap: 10px; /* Space between buttons */
         width: 100%;
         max-width: 400px;
         margin: 0 auto;
-        gap: 20px;
-        padding: 10px 0;
+        padding: 10px;
       }
 
-      .answer-column {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
+      /* Styling for answer buttons */
       .answers-container button {
-        padding: 15px;
-        font-size: 18px;
+        font-size: 2vw; /* Responsive font size */
         border: none;
         background-color: #4caf50;
         color: white;
         border-radius: 5px;
         cursor: pointer;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: centre;
+        width: 100%; /* Full width within the grid cell */
       }
 
+      /* Hover effect for buttons */
       .answers-container button:hover {
         background-color: #45a049;
       }
 
+      /* Mark incorrect answers in red */
       .answers-container button.incorrect {
         background-color: #f44336;
       }
 
+      /* Game over modal styling */
       #game-over {
         display: none;
         position: absolute;
@@ -90,9 +97,10 @@
         color: white;
         padding: 20px 30px;
         border-radius: 10px;
-        text-align: center;
+        text-align: centre;
       }
 
+      /* Restart button styling in the game over modal */
       #game-over button {
         margin-top: 10px;
         padding: 10px 20px;
@@ -103,29 +111,41 @@
         border-radius: 5px;
       }
 
+      /* Display the score area */
       .score {
-        text-align: center;
-        font-size: 18px;
-        margin-top: 10px;
-        color: #4a90e2;
+        text-align: center; /* Centre the text horizontally */
+        font-size: 2vw; /* Responsive font size */
+        margin: 0 auto; /* Center the container */
+        padding: 10px; /* Add some padding for better spacing */
+        width: 100%; /* Ensure it spans the full width */
+        color: #4a90e2; /* Keep the text colour consistent */
       }
     </style>
   </head>
 
   <body>
+    <!-- Score display -->
     <div class="score" id="score">
-      Score: 0 | Level: 1 | Hanzis Memorised: 0
+      Score: 0 | Base Speed: 1 | Hanzis Memorised: 0 | Attempts Remaining for
+      Current Hanzi: 3
     </div>
+
+    <!-- Main game container -->
     <div class="game-container" id="game-container">
+      <!-- Game over modal -->
       <div id="game-over">
         <p>Game Over!</p>
         <button onclick="restartGame()">Restart</button>
       </div>
+      <!-- Pinyin display at the bottom -->
       <div class="pinyin-display" id="pinyin-display"></div>
     </div>
+
+    <!-- Container for answer buttons -->
     <div class="answers-container" id="answers-container"></div>
 
     <script>
+      // Data for Hanzi characters, their Pinyin, and meanings
       const data = [
         {
           Hanzis: "不",
@@ -1828,6 +1848,7 @@
         },
       ];
 
+      // Game state variables
       let score = 0;
       let level = 1;
       let hanzisMemorised = 0;
@@ -1835,29 +1856,39 @@
       let currentHanzi = null;
       let hanziElement = null;
       let gameInterval = null;
-      let attemptsRemaining = 3;
+      let attemptsRemainingForCurrentHanzi = 3; // 3 attempts per Hanzi
+
+      let baseSpeed = 1; // Initial speed for the falling Hanzi
       const gameContainer = document.getElementById("game-container");
       const answersContainer = document.getElementById("answers-container");
       const pinyinDisplay = document.getElementById("pinyin-display");
       const scoreDisplay = document.getElementById("score");
 
+      // Start the game and initialise variables
       function startGame() {
         score = 0;
         level = 1;
         hanzisMemorised = 0;
-        attemptsRemaining = 3;
-        currentHanziIndex = 0; // Reinicia o índice
+        currentHanziIndex = 0;
+        baseSpeed = 1; // Reset falling speed
+        attemptsRemainingForCurrentHanzi = 3; // Reset attempts for first Hanzi
         updateScore();
         showNextHanzi();
       }
 
+      // Display the next Hanzi and manage the falling animation
       function showNextHanzi() {
+        // Check if the cycle of Hanzis has been completed
         if (currentHanziIndex >= data.length) {
-          currentHanziIndex = 0; // Reinicia sequência ao final
-          level++;
+          currentHanziIndex = 0; // Restart the cycle
+          baseSpeed += 1; // Increase the falling speed after completing a cycle
           updateScore();
         }
 
+        // Reset attempts for the current Hanzi
+        attemptsRemainingForCurrentHanzi = 3;
+
+        // Retrieve the current Hanzi data
         currentHanzi = data[currentHanziIndex];
         hanziElement = document.createElement("div");
         hanziElement.className = "hanzi";
@@ -1867,14 +1898,17 @@
         hanziElement.style.top = "0px";
         gameContainer.appendChild(hanziElement);
 
+        // Show the Pinyin for the current Hanzi
         pinyinDisplay.innerText = currentHanzi.Piyins;
         generateAnswerOptions();
 
+        // Animate the Hanzi falling
         let position = 0;
         gameInterval = setInterval(() => {
-          position += 2 + level; // Velocidade aumenta com o nível
+          position += baseSpeed; // Adjust falling speed based on baseSpeed
           hanziElement.style.top = position + "px";
 
+          // End the game if the Hanzi reaches the bottom of the container
           if (
             position >=
             gameContainer.offsetHeight - hanziElement.offsetHeight
@@ -1884,20 +1918,23 @@
         }, 50);
       }
 
+      // End the game logic
       function endGame() {
-        clearInterval(gameInterval);
-        hanziElement.remove();
+        clearInterval(gameInterval); // Stop the falling animation
+        hanziElement.remove(); // Remove the Hanzi element from the DOM
         hanziElement = null;
-        document.getElementById("game-over").style.display = "block";
+        document.getElementById("game-over").style.display = "block"; // Show game over modal
       }
 
+      // Restart the game
       function restartGame() {
-        document.getElementById("game-over").style.display = "none";
-        startGame();
+        document.getElementById("game-over").style.display = "none"; // Hide game over modal
+        startGame(); // Restart the game setup
       }
 
+      // Generate the answer options for the current Hanzi
       function generateAnswerOptions() {
-        answersContainer.innerHTML = "";
+        answersContainer.innerHTML = ""; // Clear previous answers
         const correctAnswer = currentHanzi.Meanings;
         const allMeanings = data
           .map((item) => item.Meanings)
@@ -1907,54 +1944,70 @@
           ...allMeanings.slice(0, 3),
         ]);
 
-        const leftColumn = document.createElement("div");
-        leftColumn.className = "answer-column";
-
-        const rightColumn = document.createElement("div");
-        rightColumn.className = "answer-column";
-
-        answerOptions.forEach((option, index) => {
+        // Create answer buttons
+        answerOptions.forEach((option) => {
           const button = document.createElement("button");
           button.innerText = option;
           button.onclick = () => checkAnswer(button, option);
+          answersContainer.appendChild(button);
+        });
 
-          if (index < 2) {
-            leftColumn.appendChild(button);
-          } else {
-            rightColumn.appendChild(button);
+        equalizeButtonSizes(); // Ensure all buttons have the same height
+      }
+
+      // Equalise button sizes to maintain consistency
+      function equalizeButtonSizes() {
+        const buttons = document.querySelectorAll(".answers-container button");
+        let maxHeight = 0;
+
+        // Find the tallest button
+        buttons.forEach((button) => {
+          const buttonHeight = button.offsetHeight;
+          if (buttonHeight > maxHeight) {
+            maxHeight = buttonHeight;
           }
         });
 
-        answersContainer.appendChild(leftColumn);
-        answersContainer.appendChild(rightColumn);
+        // Apply the tallest height to all buttons
+        buttons.forEach((button) => {
+          button.style.height = `${maxHeight}px`;
+        });
       }
 
+      // Check if the selected answer is correct
       function checkAnswer(button, selectedAnswer) {
         if (selectedAnswer === currentHanzi.Meanings) {
           score += 10;
           hanzisMemorised++;
           button.classList.add("correct");
-          clearInterval(gameInterval);
-          hanziElement.remove();
+          clearInterval(gameInterval); // Stop the falling animation
+          hanziElement.remove(); // Remove the current Hanzi
           hanziElement = null;
-          currentHanzi.mistakes = 0;
-          currentHanziIndex++; // Avança para o próximo Hanzi
+          currentHanziIndex++; // Move to the next Hanzi
           updateScore();
           showNextHanzi();
         } else {
-          button.classList.add("incorrect");
-          currentHanzi.mistakes++;
-          attemptsRemaining--;
-          if (attemptsRemaining <= 0) {
-            endGame();
+          button.classList.add("incorrect"); // Mark the button as incorrect
+          attemptsRemainingForCurrentHanzi--;
+          if (attemptsRemainingForCurrentHanzi <= 0) {
+            // Move to the next Hanzi if no attempts are left
+            clearInterval(gameInterval);
+            hanziElement.remove();
+            hanziElement = null;
+            currentHanziIndex++;
+            updateScore();
+            showNextHanzi();
           }
         }
+        updateScore();
       }
 
+      // Update the score and display
       function updateScore() {
-        scoreDisplay.innerText = `Score: ${score} | Level: ${level} | Hanzis Memorised: ${hanzisMemorised}`;
+        scoreDisplay.innerText = `Score: ${score} | Base Speed: ${baseSpeed} | Hanzis Memorised: ${hanzisMemorised} | Attempts Remaining for Current Hanzi: ${attemptsRemainingForCurrentHanzi}`;
       }
 
+      // Shuffle the array (Fisher-Yates algorithm)
       function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -1963,6 +2016,7 @@
         return array;
       }
 
+      // Start the game when the page loads
       startGame();
     </script>
   </body>
