@@ -1933,16 +1933,21 @@
       }
 
       // Generate the answer options for the current Hanzi
+      // Generate the answer options for the current Hanzi
       function generateAnswerOptions() {
         answersContainer.innerHTML = ""; // Clear previous answers
         const correctAnswer = currentHanzi.Meanings;
-        const allMeanings = data
-          .map((item) => item.Meanings)
-          .filter((m) => m !== correctAnswer);
-        const answerOptions = shuffle([
-          correctAnswer,
-          ...allMeanings.slice(0, 3),
-        ]);
+
+        // Filter out the correct answer and shuffle the remaining meanings
+        const allMeanings = shuffle(
+          data.map((item) => item.Meanings).filter((m) => m !== correctAnswer)
+        );
+
+        // Select three random incorrect answers
+        const incorrectAnswers = allMeanings.slice(0, 3);
+
+        // Combine correct answer with three random incorrect answers and shuffle the options
+        const answerOptions = shuffle([correctAnswer, ...incorrectAnswers]);
 
         // Create answer buttons
         answerOptions.forEach((option) => {
@@ -1954,7 +1959,6 @@
 
         equalizeButtonSizes(); // Ensure all buttons have the same height
       }
-
       // Equalise button sizes to maintain consistency
       function equalizeButtonSizes() {
         const buttons = document.querySelectorAll(".answers-container button");
