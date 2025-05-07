@@ -67,6 +67,10 @@
             background-color: #45a049;
         }
 
+        .answers-container button.incorrect {
+            background-color: #f44336; /* Vermelho para respostas incorretas */
+        }
+
         #game-over {
             display: none;
             position: absolute;
@@ -114,6 +118,7 @@
         let currentHanzi = null;
         let hanziElement = null;
         let gameInterval = null;
+        let attemptsRemaining = 3; // Tentativas restantes
         const gameContainer = document.getElementById('game-container');
         const answersContainer = document.getElementById('answers-container');
 
@@ -122,6 +127,7 @@
          */
         function startGame() {
             currentHanziIndex = 0;
+            attemptsRemaining = 3; // Reinicia as tentativas
             showNextHanzi();
         }
 
@@ -173,6 +179,7 @@
         function restartGame() {
             document.getElementById('game-over').style.display = 'none';
             currentHanziIndex = 0;
+            attemptsRemaining = 3; // Reinicia as tentativas
             startGame();
         }
 
@@ -194,7 +201,7 @@
             answerOptions.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.innerText = option;
-                button.onclick = () => checkAnswer(option);
+                button.onclick = () => checkAnswer(button, option);
 
                 // Distribute buttons into two columns
                 if (index < 2) {
@@ -211,13 +218,22 @@
         /**
          * Checks if the selected answer is correct
          */
-        function checkAnswer(selectedAnswer) {
+        function checkAnswer(button, selectedAnswer) {
             if (selectedAnswer === currentHanzi.Meanings) {
                 clearInterval(gameInterval);
                 hanziElement.remove();
                 hanziElement = null;
                 currentHanziIndex++;
+                attemptsRemaining = 3; // Reinicia as tentativas para o próximo Hanzi
                 showNextHanzi();
+            } else {
+                // Marca o botão como incorreto
+                button.classList.add('incorrect');
+                attemptsRemaining--;
+
+                if (attemptsRemaining <= 0) {
+                    endGame();
+                }
             }
         }
 
